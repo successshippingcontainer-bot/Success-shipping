@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SUCCESS SHIPPING - Inventory</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+body{font-family:Arial;margin:0;background:#f5f7fb}
+.top-bar{background:#ff6b00;color:#fff;padding:6px 15px;font-size:11px;display:flex;justify-content:space-between;flex-wrap:wrap}
+.main-header{background:#fff;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.08);position:sticky;top:0;z-index:30}
+.logo{font-weight:bold;color:#0a1931;font-size:18px}.logo span{color:#ff6b00}
+.nav-links{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;font-weight:bold;align-items:center}
+.nav-links a{text-decoration:none;color:#0a1931}
+.nav-links a.active{color:#ff6b00}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding:20px}
+.card{position:relative;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.1);border:1px solid #eee;display:flex;flex-direction:column}
+.catTag{position:absolute;top:8px;left:8px;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:bold;color:#fff;z-index:2}
+.cat40{background:#ff6b00}.catTrailer{background:#2e7d32}.cat20{background:#0a1931}.catOther{background:#666}
+.mainImg{width:100%;height:180px;object-fit:cover;cursor:pointer}
+.body{padding:11px;flex:1;display:flex;flex-direction:column}
+.price{color:#ff6b00;font-weight:bold}.badge{font-size:9px;padding:2px 6px;border-radius:8px;background:#e6f4ea;color:#0a7a2f;font-weight:bold}
+.btn{padding:10px 12px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;font-size:11px;margin-top:6px;width:100%}
+.btn-orange{background:#ff6b00;color:#fff}.btn-blue{background:#0a1931;color:#fff}.btn-green{background:#2e7d32;color:#fff}
+#picker{text-align:center;padding:18px;background:#fff;margin:12px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+#stats{background:#e8f5e9;padding:10px;border-radius:8px;margin:10px 15px;font-size:12px;text-align:center}
+#pagination,#pagination2{display:flex;justify-content:center;align-items:center;gap:8px;padding:18px;flex-wrap:wrap;background:#fff;margin:12px;border-radius:12px}
+.pageBtn{padding:9px 13px;border:1px solid #0a1931;background:#fff;color:#0a1931;border-radius:8px;font-weight:bold;cursor:pointer}
+.pageBtn.active{background:#0a1931;color:#fff}
+.pageBtn:disabled{opacity:0.4}
+#cartBtn{background:#ff6b00;color:#fff;border:none;padding:10px 16px;border-radius:20px;font-weight:bold;cursor:pointer}
+#cartCount{background:#fff;color:#ff6b00;border-radius:50%;padding:2px 7px;margin-left:6px;font-size:12px}
+#cartDrawer{display:none;position:fixed;top:0;right:0;width:380px;max-width:92%;height:100%;background:#fff;z-index:200;box-shadow:-4px 0 20px rgba(0,0,0,.3);overflow-y:auto}
+#cartHeader{background:#0a1931;color:#fff;padding:15px;display:flex;justify-content:space-between}
+.cartItem{display:flex;gap:10px;padding:12px;border-bottom:1px solid #eee}
+.cartItem img{width:60px;height:50px;object-fit:cover;border-radius:6px}
+#checkoutPage,#successPage{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#f5f7fb;z-index:300;overflow-y:auto}
+#checkoutInner,#successInner{max-width:900px;margin:0 auto;background:#fff;min-height:100%}
+#checkoutHeader,#successHeader{background:#0a1931;color:#fff;padding:15px;display:flex;justify-content:space-between;align-items:center}
+.formSection{padding:22px;border-bottom:1px solid #eee}
+.formSection h3{margin:0 0 15px 0;color:#0a1931;border-left:4px solid #ff6b00;padding-left:10px}
+.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.formGrid input,.formGrid select{padding:12px;border:1px solid #ddd;border-radius:8px;font-size:13px;width:100%;box-sizing:border-box}
+.formGrid label{font-size:11px;font-weight:bold;color:#333;margin-bottom:4px;display:block}
+.paymentBox{border:2px solid #eee;border-radius:10px;padding:16px;cursor:pointer;margin-bottom:12px}
+.paymentBox.selected{border-color:#ff6b00;background:#fff8f0}
+.paymentNote{margin-top:14px;padding:14px;background:#e8f5e9;border:1px solid #4caf50;border-radius:8px;font-size:14px;display:none;color:#1b5e20;font-weight:600;text-align:center}
+.paymentNote.show{display:block}
+#modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:9999;overflow-y:auto;padding:15px;box-sizing:border-box}
+#modalBox{background:#fff;max-width:950px;margin:15px auto;border-radius:16px;overflow:hidden}
+#gallery{display:flex;gap:10px;overflow-x:auto;padding:10px;background:#000}
+#gallery img{height:380px;object-fit:contain;flex-shrink:0;border-radius:8px;background:#111}
+#closeBtn{position:fixed;top:12px;right:15px;background:#fff;border:none;font-size:22px;width:42px;height:42px;border-radius:50%;cursor:pointer;z-index:10000}
+</style></head><body>
+
+<div class="top-bar"><div>📍 1526 W Glendale Ave, Phoenix, AZ 85021, USA</div><div>📞 +1 270-466-1777 | 📧 successshippingcontainer@gmail.com</div></div>
+<div class="main-header">
+<div class="logo">🔥 Success Shipping <span>CONTAINER</span></div>
+<div class="nav-links">
+<a href="index.html">Home</a>
+<a href="inventory.html" class="active">Inventory</a>
+<a href="about.html">About Us</a>
+<a href="shipping-policy.html">Shipping Policy</a>
+<a href="returns.html">Returns</a>
+<a href="contact.html">Contact Us</a>
+<button id="cartBtn" onclick="toggleCart()" style="margin-left:10px">🛒 Cart <span id="cartCount">0</span></button>
+</div>
+</div>
+
+<section style="background:#fff8e1;border:1px solid #f5e6c8;margin:12px;border-radius:12px;padding:22px 20px">
+<h2 style="text-align:center;color:#0a1931;margin:0 0 18px 0;font-size:22px">Why Choose Us?</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px">
+<div style="background:#fff;padding:16px;border-radius:10px;border:1px solid #f0e0b0;text-align:center"><div style="font-size:28px">🏠</div><div style="font-weight:bold;color:#0a1931;margin:6px 0 4px 0;font-size:13px">Family-Owned Since 2015</div><div style="font-size:11px;color:#666">Trusted family business</div></div>
+<div style="background:#fff;padding:16px;border-radius:10px;border:1px solid #f0e0b0;text-align:center"><div style="font-size:28px">✅</div><div style="font-weight:bold;color:#0a1931;margin:6px 0 4px 0;font-size:13px">Quality Guaranteed</div><div style="font-size:11px;color:#666">Wind & watertight</div></div>
+<div style="background:#fff;padding:16px;border-radius:10px;border:1px solid #f0e0b0;text-align:center"><div style="font-size:28px">🚚</div><div style="font-weight:bold;color:#0a1931;margin:6px 0 4px 0;font-size:13px">Fast Delivery</div><div style="font-size:11px;color:#666">Phoenix based</div></div>
+<div style="background:#fff;padding:16px;border-radius:10px;border:1px solid #f0e0b0;text-align:center"><div style="font-size:28px">💰</div><div style="font-weight:bold;color:#0a1931;margin:6px 0 4px 0;font-size:13px">Best Prices</div><div style="font-size:11px;color:#666">No hidden fees</div></div>
+</div>
+</section>
+
+<div id="picker"><div style="background:#fff3cd;padding:10px;border-radius:8px;margin-bottom:10px;font-size:11px">Admin Email: <input id="adminEmail" style="padding:8px;border:1px solid #ddd;border-radius:6px;width:220px" value="successshippingcontainer@gmail.com"></div><input type="file" id="fileInput" accept=".xlsx" style="padding:8px;border:2px dashed #ff6b00;border-radius:8px;background:#fff8f0"><div id="status" style="margin-top:8px;font-weight:bold">Choose Excel File</div></div>
+<div id="stats" style="display:none"></div>
+<div id="pagination" style="display:none"><button class="pageBtn" onclick="changePage(-1)" id="prevBtn">← Prev</button><span id="pageInfo" style="font-weight:bold"></span><div id="pageNumbers" style="display:flex;gap:6px;flex-wrap:wrap"></div><button class="pageBtn" onclick="changePage(1)" id="nextBtn">Next →</button></div>
+<div class="grid" id="grid"></div>
+<div id="pagination2" style="display:none"></div>
+
+<div id="cartDrawer"><div id="cartHeader"><b>🛒 Cart (<span id="cartCount2">0</span>)</b><button onclick="toggleCart()" style="background:#fff;border:none;width:30px;height:30px;border-radius:50%">✕</button></div><div id="cartItems"></div><div style="padding:15px;border-top:2px solid #0a1931"><div id="cartTotal" style="font-weight:bold;font-size:18px;margin-bottom:12px">Total: $0</div><button class="btn btn-orange" style="font-size:14px;padding:14px" onclick="goToCheckout()">PROCEED TO CHECKOUT →</button></div></div>
+
+<div id="checkoutPage"><div id="checkoutInner"><div id="checkoutHeader"><div><b>Secure Checkout</b></div><button onclick="document.getElementById('checkoutPage').style.display='none'" style="background:#fff;border:none;width:32px;height:32px;border-radius:50%">✕</button></div>
+<div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:0"><div>
+<div class="formSection"><h3>1. Delivery Information</h3><div class="formGrid"><div><label>First Name *</label><input id="fName"></div><div><label>Last Name *</label><input id="lName"></div><div><label>Email *</label><input id="email"></div><div><label>Phone *</label><input id="phone"></div><div style="grid-column:1/-1"><label>Street Address *</label><input id="address"></div><div><label>City *</label><input id="city"></div><div><label>ZIP *</label><input id="zip"></div></div></div>
+<div class="formSection"><h3>2. Select Payment Method</h3>
+<div class="paymentBox" id="payCard" onclick="selectPay('card')"><div><input type="radio" name="pay" id="radioCard"> <b>💳 Credit Card</b></div><div class="paymentNote" id="noteCard">Details On How To Pay Will Be Sent Through Text Or Email Once You Place Your Order.</div></div>
+<div class="paymentBox" id="payBank" onclick="selectPay('bank')"><div><input type="radio" name="pay" id="radioBank"> <b>🏦 Bank Account</b></div><div class="paymentNote" id="noteBank">Details On How To Pay Will Be Sent Through Text Or Email Once You Place Your Order.</div></div>
+</div></div>
+<div style="background:#fafafa;padding:20px;border-left:1px solid #eee"><h3>Order Summary</h3><div id="checkoutSummary"></div><div style="margin-top:15px;padding-top:15px;border-top:2px solid #0a1931"><div style="display:flex;justify-content:space-between;font-weight:bold;font-size:18px"><span>Total:</span><span id="sumTotal" style="color:#ff6b00">$0</span></div></div><button id="placeBtn" class="btn btn-orange" style="padding:16px;font-size:15px;margin-top:18px" onclick="placeOrder()">🔒 PLACE ORDER</button></div></div></div></div>
+
+<div id="successPage"><div id="successInner"><div id="successHeader"><div><b>✔ SUCCESS SHIPPING</b></div><div style="font-size:12px">Order Confirmation</div></div>
+<div style="text-align:center;padding:40px 20px;background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%)"><div style="width:80px;height:80px;background:#2e7d32;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:40px;color:#fff">✔</div><h1 style="color:#2e7d32;margin:0">Order Placed Successfully!</h1><div style="background:#fff;display:inline-block;padding:10px 20px;border-radius:20px;margin-top:10px"><b>Order #SS-<span id="orderNumber">12345</span></b> • <span id="orderDate"></span></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0"><div style="padding:22px">
+<div><h3 style="color:#0a1931;border-left:4px solid #ff6b00;padding-left:10px">📦 Delivery Details</h3><div id="successDelivery" style="background:#fafafa;padding:15px;border-radius:10px;font-size:13px"></div></div>
+<div style="padding:20px 0 0 0"><h3 style="color:#0a1931;border-left:4px solid #ff6b00;padding-left:10px">💳 Payment Instructions</h3>
+<div style="background:#fff;border:2px solid #ff6b00;border-radius:12px;padding:25px;text-align:center">
+<div style="font-size:35px">📱 📧</div>
+<div style="font-weight:bold;color:#0a1931;font-size:16px;margin-top:10px">Details On How To Pay Will Be Sent Through Text Or Email Once You Place Your Order.</div>
+</div>
+</div>
+</div>
+<div style="background:#fafafa;padding:22px;border-left:1px solid #eee"><h3>🛒 Order Summary</h3><div id="successSummary"></div><div style="margin-top:15px;padding-top:15px;border-top:2px solid #0a1931"><div style="display:flex;justify-content:space-between;font-weight:bold;font-size:20px"><span>Total:</span><span id="successTotal" style="color:#ff6b00">$0</span></div></div><button class="btn btn-blue" style="padding:14px;margin-top:18px" onclick="continueShopping()">← CONTINUE SHOPPING</button></div></div></div></div>
+
+<div id="modal"><button id="closeBtn" onclick="document.getElementById('modal').style.display='none'">✕</button><div id="modalBox"><div id="gallery"></div><div style="padding:18px"><span id="modalBadge" class="badge"></span><h2 id="modalTitle"></h2><div id="modalPrice" class="price" style="font-size:20px"></div><div id="modalDesc" style="line-height:1.6;font-size:13px;margin-top:10px"></div><button id="modalCartBtn" class="btn btn-orange" style="margin-top:12px;padding:14px">ADD TO CART</button></div></div></div>
+
+<footer style="background:linear-gradient(180deg,#2a4cb0 0%, #1e3a8a 100%);color:#fff;margin-top:40px">
+<div style="max-width:1200px;margin:0 auto;padding:30px 20px;display:grid;grid-template-columns:1.2fr 1.5fr 0.6fr;gap:20px">
+<div><div style="color:#ff8c00;font-weight:bold;font-size:13px">🔥 Success Shipping Container</div><div style="font-size:11px;color:#dbeafe">Family-owned since 2015.<br><br>📍 1526 W Glendale Ave, Phoenix, AZ 85021, USA</div></div>
+<div><div style="font-weight:bold;font-size:11px;color:#ffcc66">CONTACT US</div><div style="font-size:11px;color:#dbeafe">Phone: +1 270-466-1777<br>Email: successshippingcontainer@gmail.com</div></div>
+<div><div style="font-weight:bold;font-size:11px;color:#ffcc66">POLICIES</div><div style="font-size:11px"><a href="shipping-policy.html" style="color:#dbeafe;text-decoration:underline">Shipping Policy</a><br><a href="returns.html" style="color:#dbeafe;text-decoration:underline">Returns</a><br><a href="contact.html" style="color:#dbeafe;text-decoration:underline">Contact Us</a></div></div>
+</div>
+<div style="border-top:1px solid rgba(255,255,255,0.15);text-align:center;padding:10px;font-size:9px;color:#9bb0e0">© 2024 Success Shipping Container - All Rights Reserved</div>
+</footer>
+
+<script>
+const FORMSUBMIT_URL="https://formsubmit.co/ajax/";
+let allUnique=[]; let currentPage=1; const PER_PAGE=30; let cart=JSON.parse(localStorage.getItem('success_cart')||"[]"); let payMethod='';
+function getCategory(p){ let t=((p.info.Title||"")+" "+(p.info.Tags||"")+" "+(p.info.Type||"")).toLowerCase(); if(t.includes("40ft")||t.includes("40'")||t.includes("40 hc")) return {order:1,name:"40FT",class:"cat40"}; if(t.includes("trailer")||t.includes("gooseneck")||t.includes("chassis")) return {order:1.5,name:"TRAILER",class:"catTrailer"}; if(t.includes("20ft")||t.includes("20'")) return {order:2,name:"20FT",class:"cat20"}; return {order:3,name:"OTHER",class:"catOther"}; }
+document.getElementById('fileInput').addEventListener('change',function(e){ const file=e.target.files[0]; if(!file) return; document.getElementById('status').innerText="⏳ Loading..."; const reader=new FileReader(); reader.onload=function(evt){ const wb=XLSX.read(evt.target.result,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]]; const rows=XLSX.utils.sheet_to_json(ws); let byHandle={}; for(let r of rows){ let h=r.Handle||""; if(!h) continue; if(!byHandle[h]) byHandle[h]={info:r,images:[]}; let img=(r["Image Src"]||"").toString(); if(img.includes("http")&&!byHandle[h].images.includes(img)) byHandle[h].images.push(img); if(r["Top Row"]==1) byHandle[h].info=r; } let byTitle={}; for(let h in byHandle){ let g=byHandle[h]; let key=(g.info.Title||"").toString().toLowerCase().trim().replace(/\s+/g,' ').substring(0,80); if(!key) continue; if(!byTitle[key]) byTitle[key]=g; else { g.images.forEach(img=>{if(!byTitle[key].images.includes(img)) byTitle[key].images.push(img);});} } let products=Object.values(byTitle); products.forEach(p=>{p.category=getCategory(p);}); let arr40=products.filter(p=>p.category.name=="40FT"); let arrTrailer=products.filter(p=>p.category.name=="TRAILER"); let arr20=products.filter(p=>p.category.name=="20FT"); let arrOther=products.filter(p=>p.category.name=="OTHER"); let mixed=[]; let max=Math.max(arr40.length,arrTrailer.length); for(let i=0;i<max;i++){if(i<arr40.length) mixed.push(arr40[i]); if(i<arrTrailer.length) mixed.push(arrTrailer[i]);} allUnique=[...mixed,...arr20,...arrOther]; document.getElementById('stats').style.display='block'; document.getElementById('stats').innerHTML=`✅ ${allUnique.length} unique containers`; currentPage=1; renderPage(); updateCartUI(); document.getElementById('status').innerText=`✅ Loaded ${allUnique.length} containers!`; }; reader.readAsArrayBuffer(file); });
+function renderPage(){
+  const total=Math.ceil(allUnique.length/PER_PAGE);
+  const start=(currentPage-1)*PER_PAGE;
+  const pageItems=allUnique.slice(start,start+PER_PAGE);
+  let html="";
+  pageItems.forEach((g,idx)=>{
+    let r=g.info; let imgs=g.images; let globalIdx=start+idx;
+    let title=(r.Title||"").toString().substring(0,125);
+    let mainImg=imgs[0]||"https://images.unsplash.com/photo-1494412651409-8963ce7935b4?w=600";
+    let price=""; try{price="$"+Number(r["Variant Price"]).toLocaleString();}catch(e){price=r["Variant Price"];}
+    let inCart=cart.find(c=>c.idx==globalIdx);
+    html+=`<div class='card'><div class='catTag ${g.category.class}'>${g.category.name}</div><img class='mainImg' src='${mainImg}' onclick='openGallery(${globalIdx})'><div class='body'><span class='badge'>#${globalIdx+1} • ${g.category.name} • ${imgs.length}</span><h3 onclick='openGallery(${globalIdx})' style='cursor:pointer'>${title}</h3><div class='price'>${price}*</div><div style='margin-top:auto'><button class='btn ${inCart?"btn-green":"btn-orange"}' onclick='addToCart(${globalIdx})'>${inCart?"✔ IN CART ("+inCart.qty+")":"🛒 ADD TO CART"}</button><button class='btn btn-blue' onclick='openGallery(${globalIdx})'>VIEW DETAILS</button></div></div></div>`;
+  });
+  document.getElementById('grid').innerHTML=html;
+  if(allUnique.length>0){
+    document.getElementById('pagination').style.display='flex';
+    document.getElementById('pageInfo').innerText=`Page ${currentPage}/${total}`;
+    document.getElementById('prevBtn').disabled=currentPage==1;
+    document.getElementById('nextBtn').disabled=currentPage==total;
+    let numsHtml=""; for(let i=1;i<=total;i++){ if(i==1||i==total||(i>=currentPage-2&&i<=currentPage+2)){ numsHtml+=`<button class='pageBtn ${i==currentPage?"active":""}' onclick='goPage(${i})'>${i}</button>`; } } document.getElementById('pageNumbers').innerHTML=numsHtml;
+    let bottom=document.getElementById('pagination2');
+    bottom.innerHTML=`<button class="pageBtn" onclick="changePage(-1)" ${currentPage==1?"disabled":""}>← Prev</button><span style="font-weight:bold">Page ${currentPage}/${total}</span><div style="display:flex;gap:6px;flex-wrap:wrap">${numsHtml}</div><button class="pageBtn" onclick="changePage(1)" ${currentPage==total?"disabled":""}>Next →</button>`;
+    bottom.style.display='flex';
+  }
+}
+function changePage(d){ let t=Math.ceil(allUnique.length/PER_PAGE); currentPage=Math.max(1,Math.min(t,currentPage+d)); renderPage(); window.scrollTo(0,500); }
+function goPage(p){ currentPage=p; renderPage(); window.scrollTo(0,500); }
+function addToCart(idx){ let g=allUnique[idx]; let r=g.info; let price=Number(r["Variant Price"])||0; let ex=cart.find(c=>c.idx==idx); if(ex) ex.qty++; else cart.push({idx:idx,title:r.Title,price:price,img:g.images[0],qty:1}); localStorage.setItem('success_cart',JSON.stringify(cart)); updateCartUI(); renderPage(); }
+function updateCartUI(){ let totalQty=cart.reduce((s,c)=>s+c.qty,0); let totalPrice=cart.reduce((s,c)=>s+c.price*c.qty,0); document.getElementById('cartCount').innerText=totalQty; let c2=document.getElementById('cartCount2'); if(c2) c2.innerText=totalQty; document.getElementById('cartTotal').innerText="Total: $"+totalPrice.toLocaleString(); let html=""; cart.forEach((c,i)=>{ html+=`<div class='cartItem'><img src='${c.img}'><div style='flex:1'><div style='font-size:11px;font-weight:bold'>${c.title.substring(0,60)}</div><div style='font-size:12px;color:#ff6b00'>$${c.price.toLocaleString()} x ${c.qty}</div></div><button onclick='removeFromCart(${i})' style='background:#fee;border:none;border-radius:50%;width:26px;height:26px'>✕</button></div>`; }); if(cart.length==0) html="<div style='text-align:center;padding:30px;color:#999'>Cart empty</div>"; document.getElementById('cartItems').innerHTML=html; document.getElementById('checkoutSummary').innerHTML=html; document.getElementById('sumTotal').innerText="$"+totalPrice.toLocaleString(); }
+function removeFromCart(i){ cart.splice(i,1); localStorage.setItem('success_cart',JSON.stringify(cart)); updateCartUI(); renderPage(); }
+function toggleCart(){ let d=document.getElementById('cartDrawer'); d.style.display=d.style.display=="block"?"none":"block"; }
+function goToCheckout(){ if(cart.length==0) return alert("Cart empty!"); document.getElementById('cartDrawer').style.display='none'; document.getElementById('checkoutPage').style.display='block'; updateCartUI(); }
+function selectPay(method){ payMethod=method; document.getElementById('payCard').classList.toggle('selected',method=='card'); document.getElementById('payBank').classList.toggle('selected',method=='bank'); document.getElementById('radioCard').checked=method=='card'; document.getElementById('radioBank').checked=method=='bank'; document.getElementById('noteCard').classList.toggle('show',method=='card'); document.getElementById('noteBank').classList.toggle('show',method=='bank'); }
+async function placeOrder(){
+  let fName=document.getElementById('fName').value; let lName=document.getElementById('lName').value; let email=document.getElementById('email').value; let phone=document.getElementById('phone').value; let address=document.getElementById('address').value; let city=document.getElementById('city').value; let zip=document.getElementById('zip').value; let adminEmail=document.getElementById('adminEmail').value;
+  if(!fName||!lName||!email||!phone||!address||!city||!zip) return alert("Please fill all delivery fields *");
+  if(!payMethod) return alert("Please select payment method");
+  let orderNum=Math.floor(10000+Math.random()*90000); let total=cart.reduce((s,c)=>s+c.price*c.qty,0); let date=new Date().toLocaleString(); let itemsList=cart.map(c=>`- ${c.title} x${c.qty} = $${(c.price*c.qty).toLocaleString()}`).join("\n");
+  document.getElementById('placeBtn').innerText=" PROCESSING..."; document.getElementById('placeBtn').disabled=true;
+  let adminData={_subject:`NEW ORDER #SS-${orderNum}`,order_number:`SS-${orderNum}`,customer_name:`${fName} ${lName}`,customer_email:email,customer_phone:phone,delivery_address:`${address}, ${city}, ${zip}`,payment_method:payMethod,total:`$${total.toLocaleString()}`,date:date,items:itemsList,message:`NEW ORDER! #SS-${orderNum} ${fName} ${lName} ${email} ${phone} ${address} ${city} ${zip} ${payMethod} ${itemsList} Total $${total.toLocaleString()}`};
+  let customerData={_subject:`Order Confirmation #SS-${orderNum}`,order_number:`SS-${orderNum}`,customer_name:`${fName} ${lName}`,total:`$${total.toLocaleString()}`,message:`Hi ${fName}, Order #SS-${orderNum} Total $${total.toLocaleString()} Details On How To Pay Will Be Sent Through Text Or Email Once You Place Your Order.`};
+  try{
+    await fetch(FORMSUBMIT_URL+encodeURIComponent(adminEmail),{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(adminData)});
+    await fetch(FORMSUBMIT_URL+encodeURIComponent(email),{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(customerData)});
+    document.getElementById('orderNumber').innerText=orderNum; document.getElementById('orderDate').innerText=date; document.getElementById('successDelivery').innerHTML=`<b>${fName} ${lName}</b><br>${address}<br>${city}, ${zip}<br><br>📧 ${email}<br>📱 ${phone}`; let sHtml=""; cart.forEach(c=>{ sHtml+=`<div class='cartItem'><img src='${c.img}'><div style='flex:1'><div style='font-size:11px;font-weight:bold'>${c.title.substring(0,70)}</div><div style='font-size:12px;color:#ff6b00'>$${c.price.toLocaleString()} x ${c.qty}</div></div></div>`; }); document.getElementById('successSummary').innerHTML=sHtml; document.getElementById('successTotal').innerText="$"+total.toLocaleString();
+    document.getElementById('checkoutPage').style.display='none'; document.getElementById('successPage').style.display='block'; cart=[]; localStorage.setItem('success_cart',JSON.stringify(cart)); updateCartUI();
+  }catch(err){ alert("Order #SS-"+orderNum+" placed"); } document.getElementById('placeBtn').innerText="🔒 PLACE ORDER"; document.getElementById('placeBtn').disabled=false;
+}
+function continueShopping(){ document.getElementById('successPage').style.display='none'; renderPage(); }
+function openGallery(idx){ const g=allUnique[idx]; const r=g.info; const imgs=g.images; document.getElementById('modalTitle').innerText=r.Title||""; try{ document.getElementById('modalPrice').innerText="$"+Number(r["Variant Price"]).toLocaleString(); }catch(e){ document.getElementById('modalPrice').innerText=r["Variant Price"]; } document.getElementById('modalBadge').innerText=`#${idx+1} • ${g.category.name}`; document.getElementById('modalDesc').innerHTML=r["Body HTML"]||""; document.getElementById('modalCartBtn').onclick=function(){ addToCart(idx); document.getElementById('modal').style.display='none'; }; let galleryHtml=""; imgs.forEach(img=>{ galleryHtml+=`<img src='${img}'>`; }); document.getElementById('gallery').innerHTML=galleryHtml; document.getElementById('modal').style.display='block'; }
+updateCartUI();
+</script>
+</body></html>
